@@ -1,0 +1,8 @@
+import codecs
+f=open("hmconfig.md",'w',encoding = 'utf-8')
+# c = f.readline()
+f.write("语文")
+f.close()
+f=open("hmconfig.md",encoding = 'utf-8')
+c=f.readline()
+print(c)
