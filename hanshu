@@ -1,0 +1,130 @@
+# -*- coding: UTF-8 -*-
+import Tkinter
+import tkFont
+import ttk
+import serial.tools.list_ports
+import serial
+import binascii  
+root=Tkinter.Tk()
+root.title('HM收作业系统')
+root.geometry('800x600+200+0')
+
+
+global resultlist
+resultlist =[]
+def selstunum():
+      # delete()
+      def hexShowlist(argv):  
+            hexlist =[]  
+            hLen = len(argv)  
+            for i in xrange(hLen):  
+                  hvol = ord(argv[i])  
+                  hhex = '%02x'%hvol  
+                  hexlist.append(hhex)  
+            print 'hexShow:',hexlist
+            return hexlist 
+      ser = serial.Serial( port='COM3',baudrate=57600)
+      d=bytearray.fromhex('06 FF 01 05 01 2F FB')   
+      ser.write(d)
+      b= ser.readline()
+      c =hexShowlist(b)
+      m =len(c)
+      lista=[]
+      print m
+      for x in range(0,m,13):
+            lista.append((c[x:x+13]))
+      lista.pop()
+      m =len(lista)
+      for x in range(m):
+            for j in range(6):
+                del lista[x][0]
+      for x in range(m):
+            for j in range(3):
+                lista[x].pop()
+      liste=[]
+      for x in range(m):
+            a ="".join(lista[x])
+            liste.append(a)
+      global resultlist
+      resultlist=liste
+      resultlist.sort()
+      print resultlist
+      # if len(resultlist)>0:
+      #     for i in resultlist:
+      #       tree.insert('',i,values=(str(i),str('一'),str('一')))
+
+     
+def checkcom():
+        plist = list(serial.tools.list_ports.comports())
+        if len(plist) <= 0:
+                return "未检测到可用端口"
+        else:
+                plist_0 = list(plist[0])
+                serialName = plist_0[0]
+                serialFd = serial.Serial(serialName, 9600, timeout=60)
+                textcontent = serialFd.name
+                print("usecom>>>", serialFd.name)
+                return serialFd.name
+def openCom(comport):
+  try:
+        ser = serial.Serial(comport,57600)
+  except Exception,e:
+        return '打开端口失败'
+  return comport+'串口已经打开'
+def delete():
+    selected_item = tree.selection()[0] ## get selected item
+    tree.delete(selected_item)
+# def sendMessage(comport):
+#   if(!ser):
+#     ser = serial.Serial(comport,57600)
+#   ser.write('06 FF 01 05 01 2F FB')   
+def insertdata():
+      pass
+      
+#声明控件
+serialFd = checkcom()
+comport = 'COM3'
+textcontent = openCom(comport)
+ft = tkFont.Font(family = 'Fixdsys',size = 20,weight = tkFont.BOLD)
+titleLabel=Tkinter.Label(root,font=ft,text='欢迎使用HM收作业系统')
+comLabel=Tkinter.Label(root,text='端 口')
+serialLabel=Tkinter.Label(root,text=textcontent)
+subLabel=Tkinter.Label(root,text='作业科目')
+SerialButton=Tkinter.Button(root,text='打开串口')
+CheckButton = Tkinter.Button(root,text='开始检查', command=selstunum)
+CommitButton = Tkinter.Button(root,text='提交数据')
+myCombox = ttk.Combobox(root, values=serialFd)
+resultLabel=Tkinter.Label(root,text=resultlist)
+tree = ttk.Treeview(root, show="headings", columns=('col1','col2','col3'))
+einput = Tkinter.Entry(root)
+entrynum=einput.get()
+
+
+
+#添加组件到pack
+print resultlist
+myCombox .place(x=60,y=60)
+serialLabel.place(x=320,y=60)
+subLabel.place(x=10,y=100)
+titleLabel.pack(side='top')     #将LABEL组件添加到底框上
+SerialButton.place(x=250,y=55)
+comLabel.place(x=10,y=60)
+CheckButton.place(x=410,y=100)
+CommitButton.place(x=500,y=100)
+resultLabel.place(x=200,y=200)
+einput.place(x=150,y=100)
+
+tree.heading('col1', text='学号')
+tree.heading('col2', text='年级')
+tree.heading('col3', text='班级')
+tree.column('col1', anchor='center')
+tree.column('col2',anchor='center')
+tree.column('col3',anchor='center')
+tree.place(x=100,y=180, width=600, height=400)
+if len(resultlist)>0:
+      for i in resultlist:
+            tree.insert('',i,values=(str(i),str('一'),str('一')))
+print tree.get_children("")
+ 
+print resultlist
+root.mainloop()
