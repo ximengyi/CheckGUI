@@ -1,0 +1,5 @@
+  <style media="screen">
+      .table-striped th {
+        text-align: center;
+      }
+    </style>
